@@ -258,10 +258,13 @@ std::shared_ptr<ContextImpl> ContextImpl::create() {
           // FIXME It's not really great to change a global property of the
           // process, especially a security-related one. An "excuse" for doing
           // so is that UCT does the same:
+          // https://github.com/openucx/ucx/blob/4d9976b6b8f8faae609c078c72aad8e5b842c43f/src/uct/sm/scopy/cma/cma_md.c#L61
 #ifndef PR_SET_PTRACER
+// https://github.com/torvalds/linux/blob/master/include/uapi/linux/prctl.h
 #define PR_SET_PTRACER 0x59616d61
 #endif
 #ifndef PR_SET_PTRACER_ANY
+// https://github.com/torvalds/linux/blob/master/include/uapi/linux/prctl.h
 #define PR_SET_PTRACER_ANY ((unsigned long)-1)
 #endif
           rv = ::prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);

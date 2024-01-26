@@ -59,6 +59,7 @@ std::tuple<Error, Fd> createMemfd() {
   // We want to pass the MFD_CLOEXEC flag, but we can't rely on glibc exposing
   // it, thus we redefine its value if needed.
 #ifndef MFD_CLOEXEC
+// https://github.com/torvalds/linux/blob/master/include/uapi/linux/memfd.h
 #define MFD_CLOEXEC 0x0001U
 #endif
   int fd = static_cast<int>(::syscall(
@@ -84,6 +85,7 @@ std::tuple<Error, Fd> openTmpfileInDevShm() {
   // only depend on runtime capabilities, and not on compile-time ones, hence we
   // "polyfill" the flag so the build will pass and we'll get a runtime error.
 #ifndef O_TMPFILE
+// https://github.com/torvalds/linux/blob/master/include/uapi/asm-generic/fcntl.h
 #define O_TMPFILE (020000000 | 00200000)
 #endif
   int flags = O_TMPFILE | O_EXCL | O_RDWR | O_CLOEXEC;

@@ -16,6 +16,8 @@ set -eo pipefail
 echo "Both endpoints in same vanilla container"
 # This is not supposed to work, as Docker by default has a seccomp-bpf rule that
 # blocks the process_vm_readv syscall.
+# See https://jvns.ca/blog/2020/04/29/why-strace-doesnt-work-in-docker/
+# and https://docs.docker.com/engine/security/seccomp/
 
 TEMPDIR=$(mktemp --directory)
 chmod ugo+rwx "$TEMPDIR"
