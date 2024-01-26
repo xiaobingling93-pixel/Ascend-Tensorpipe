@@ -132,11 +132,6 @@ class RingBufferHeader {
  protected:
   std::array<std::atomic_flag, NumRoles> inTx_;
   std::array<std::atomic<uint64_t>, NumRoles> markers_;
-
-  // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2427.html#atomics.lockfree
-  // static_assert(
-  //     decltype(markers_)::value_type::is_always_lock_free,
-  //     "Only lock-free atomics are supported");
 };
 
 ///
