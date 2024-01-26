@@ -246,7 +246,8 @@ class NopHolder : public AbstractNopHolder {
 namespace nop {
 
 // The `nop::Encoding` specialization for `tensorpipe_npu::optional` was inspired
-// by that of `nop::Optional`
+// by that of `nop::Optional`, available here:
+// https://github.com/google/libnop/blob/master/include/nop/base/optional.h
 template <typename T>
 struct Encoding<tensorpipe_npu::optional<T>> : EncodingIO<tensorpipe_npu::optional<T>> {
   using Type = tensorpipe_npu::optional<T>;

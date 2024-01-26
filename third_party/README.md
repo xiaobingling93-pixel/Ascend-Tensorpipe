@@ -1,6 +1,8 @@
 # third_party
 
-This directory includes dependencies as [submodules].
+This directory includes dependencies as [submodules][submodules].
+
+[submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 
 ## Build dependencies
 

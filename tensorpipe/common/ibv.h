@@ -52,7 +52,8 @@ class IbvDeviceList {
     IbvLib::device** ptr = ibvLib.get_device_list(&size);
     if (ptr == nullptr) {
       // Earlier versions of libibverbs had a bug where errno would be set to
-      // *negative* ENOSYS when the module wasn't found. 
+      // *negative* ENOSYS when the module wasn't found. This got fixed in
+      // https://github.com/linux-rdma/rdma-core/commit/062bf1a72badaf6ad2d51ebe4c8c8bdccfc376e2
       // However, to support those versions, we manually flip it in case.
       return std::make_tuple(
           TP_CREATE_ERROR(
