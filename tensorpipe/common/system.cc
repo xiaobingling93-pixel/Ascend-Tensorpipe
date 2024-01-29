@@ -55,8 +55,6 @@ namespace {
 optional<std::string> getBootIDInternal() {
   std::array<char, 128> buf;
 
-  // See https://developer.apple.com/documentation/iokit/iokitlib_h for IOKitLib
-  // API documentation.
   io_registry_entry_t ioRegistryRoot =
       IORegistryEntryFromPath(kIOMasterPortDefault, "IOService:/");
   CFStringRef uuidCf = (CFStringRef)IORegistryEntryCreateCFProperty(
@@ -200,7 +198,6 @@ optional<std::string> getLinuxNamespaceId(LinuxNamespace ns) {
   return oss.str();
 }
 
-// According to https://www.kernel.org/doc/Documentation/security/LSM.txt:
 // > A list of the active security modules can be found by reading
 // > /sys/kernel/security/lsm. This is a comma separated list [...].
 optional<std::vector<std::string>> getLinuxSecurityModules() {
@@ -222,8 +219,7 @@ optional<std::vector<std::string>> getLinuxSecurityModules() {
   return res;
 }
 
-// See ptrace(2) (the sections towards the end) and
-// https://www.kernel.org/doc/Documentation/security/Yama.txt
+// See ptrace(2) (the sections towards the end)
 optional<YamaPtraceScope> getYamaPtraceScope() {
   std::ifstream f{"/proc/sys/kernel/yama/ptrace_scope"};
   if (f.fail()) {

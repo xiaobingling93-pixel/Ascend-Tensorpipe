@@ -129,8 +129,7 @@ class Registerer {
 #define TP_ANONYMOUS_VARIABLE(str) TP_CONCATENATE(str, __LINE__)
 
 // Using the construct on first use idiom to avoid static order initialization
-// issue. Refer to this link for reference:
-// https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
+// issue.
 #define TP_DEFINE_TYPED_REGISTRY(RegistryName, ObjectType, PtrType, ...)     \
   tensorpipe_npu::Registry<PtrType<ObjectType>, ##__VA_ARGS__>& RegistryName() { \
     static tensorpipe_npu::Registry<PtrType<ObjectType>, ##__VA_ARGS__>*         \

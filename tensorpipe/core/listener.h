@@ -36,7 +36,7 @@ class Pipe;
 //
 class Listener final {
   // Use the passkey idiom to allow make_shared to call what should be a private
-  // constructor. See https://abseil.io/tips/134 for more information.
+  // constructor.
   struct ConstructorToken {};
 
  public:
