@@ -1,0 +1,12 @@
+| 类型 | 开源代码地址 | 文件名 | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
+| ---- | ------------ | ------ | ------------------------------------ | -------- |
+| 开发引入 | 不涉及 | tensorpipe/test/transport/uv/sockaddr_test.cc | 1.2.3.4:65536 | 测试用例使用的虚拟IP |
+| 开发引入 | 不涉及 | tensorpipe/test/transport/uv/sockaddr_test.cc | 1.2.3.4:5 | 测试用例使用的虚拟IP |
+| 开发引入 | 不涉及 | tensorpipe/test/transport/uv/sockaddr_test.cc | 1.2.3.4:0 | 测试用例使用的虚拟IP |
+| 开发引入 | 不涉及 | tensorpipe/test/transport/uv/sockaddr_test.cc | 1.2.3.4 | 测试用例使用的虚拟IP |
+| 开发引入 | 不涉及 | tensorpipe/test/transport/uv/sockaddr_test.cc | 1.2.3.4:-1 | 测试用例使用的虚拟IP |
+| 开发引入 | 不涉及 | tensorpipe/test/transport/ibv/sockaddr_test.cc | 1.2.3.4:-1 | 测试用例使用的虚拟IP |
+| 开发引入 | 不涉及 | tensorpipe/test/transport/ibv/sockaddr_test.cc | 1.2.3.4:65536 | 测试用例使用的虚拟IP |
+| 开发引入 | 不涉及 | tensorpipe/test/transport/ibv/sockaddr_test.cc | 1.2.3.4:5 | 测试用例使用的虚拟IP |
+| 开发引入 | 不涉及 | tensorpipe/test/transport/ibv/sockaddr_test.cc | 1.2.3.4:0 | 测试用例使用的虚拟IP |
+| 开发引入 | 不涉及 | tensorpipe/test/transport/ibv/sockaddr_test.cc | 1.2.3.4 | 测试用例使用的虚拟IP |
