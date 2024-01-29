@@ -48,3 +48,6 @@ RDMA设备可通过如下指令来确认：
 ```
 $ rdma dev show
 ```
+
+#### 公网地址说明
+代码涉及公网地址参考[public_address_statement.md](https://gitee.com/ascend/Tensorpipe/blob/master/public_address_statement.md)
