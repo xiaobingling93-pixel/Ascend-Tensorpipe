@@ -25,6 +25,9 @@ option(TP_BUILD_PYTHON "Build python bindings" OFF)
 option(TP_BUILD_TESTING "Build tests" OFF)
 ```
 
+#### API接口
+Tensorpipe对外暴露的详细接口信息请参考[API文档](https://gitee.com/ascend/Tensorpipe/blob/master/API.md)
+
 #### 测试方法
 若需要测试Tensorpipe内部自带的Unit Test，请将TP_BUILD_TESTING设置为ON，并在cmake时设置: **-DTP_ENABLE_SHM=xx -DTP_ENABLE_IBV=xx -DTP_ENABLE_CMA=xx**这个三编译选项。编译完成后的build子目录中运行：**./tensorpipe/test/tensorpipe_test**
 
