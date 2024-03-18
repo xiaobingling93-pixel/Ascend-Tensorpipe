@@ -641,7 +641,7 @@ class IbvLib {
     // to global) so that the ibverbs symbols can only be resolved through this
     // handle and are not exposed (a.k.a., "leaded") to other shared objects.
     std::tie(error, dlhandle) =
-        DynamicLibraryHandle::create("libibverbs.so.1", RTLD_LOCAL | RTLD_LAZY);
+        DynamicLibraryHandle::create("libibverbs.so.1", RTLD_LOCAL | RTLD_NOW);
     if (error) {
       return std::make_tuple(std::move(error), IbvLib());
     }

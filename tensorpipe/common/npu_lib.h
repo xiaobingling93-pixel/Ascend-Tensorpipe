@@ -58,7 +58,7 @@ class NPULib {
     // through this handle and are not exposed (a.k.a., "leaked") to other
     // shared objects.
     std::tie(error, dlhandle) =
-        DynamicLibraryHandle::create("libascendcl.so", RTLD_LOCAL | RTLD_LAZY);
+        DynamicLibraryHandle::create("libascendcl.so", RTLD_LOCAL | RTLD_NOW);
     if (error) {
       return std::make_tuple(std::move(error), NPULib());
     }
