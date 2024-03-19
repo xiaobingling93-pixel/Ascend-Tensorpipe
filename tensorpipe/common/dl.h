@@ -15,15 +15,29 @@
 #include <array>
 #include <climits>
 #include <cstdlib>
+#include <cstring>
 #include <memory>
+#include <string.h>
 #include <string>
+#include <sys/stat.h>
 #include <tuple>
 
 #include <tensorpipe/common/defs.h>
 #include <tensorpipe/common/error.h>
 #include <tensorpipe/common/error_macros.h>
-
 namespace tensorpipe_npu {
+
+static bool checkFilePermission(const std::string& file_path)
+{
+    struct stat file_stat;
+    if (stat(file_path.c_str(), &file_stat) == 0) {
+        int permission = file_stat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
+        if (permission <= 0640) {
+            return true;
+        }
+    }
+    return false;
+}
 
 class DlError final : public BaseError {
  public:
@@ -41,16 +55,31 @@ class DynamicLibraryHandle {
  public:
   DynamicLibraryHandle() = default;
 
-  static std::tuple<Error, DynamicLibraryHandle> create(
-      const char* filename,
-      int flags) {
-    void* ptr = ::dlopen(filename, flags);
-    if (ptr == nullptr) {
-      return std::make_tuple(
-          TP_CREATE_ERROR(DlError, ::dlerror()), DynamicLibraryHandle());
+static std::tuple<Error, DynamicLibraryHandle> create(const char* filename, int flags)
+{
+    void* handle = ::dlopen(filename, flags);
+    if (handle == nullptr) {
+        return std::make_tuple(TP_CREATE_ERROR(DlError, ::dlerror()), DynamicLibraryHandle());
     }
-    return std::make_tuple(Error::kSuccess, DynamicLibraryHandle(ptr));
-  }
+    std::string file_name(filename);
+    if ((file_name.find("ascend") != std::string::npos)) {
+        return std::make_tuple(Error::kSuccess, DynamicLibraryHandle(handle));
+    }
+
+    void* func_addr = dlsym(handle, "ibv_get_device_list");
+    Dl_info info;
+    if (!dladdr(func_addr, &info)) {
+        std::string error_str("Can not get the path of ");
+        error_str = error_str + file_name;
+        throw std::runtime_error(error_str);
+    }
+    if (!checkFilePermission(info.dli_fname)) {
+        std::string error_str(" check the permissions error, make sure that the permission is less than 640.");
+        error_str = file_name + error_str;
+        throw std::runtime_error(error_str);
+    }
+    return std::make_tuple(Error::kSuccess, DynamicLibraryHandle(handle));
+}
 
   bool hasValue() const {
     return ptr_ != nullptr;

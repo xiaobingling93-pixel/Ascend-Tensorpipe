@@ -8,10 +8,7 @@
 ```
 $ git clone --recursive https://gitee.com/ascend/Tensorpipe.git
 $ cd Tensorpipe
-$ mkdir build
-$ cd build
-$ cmake ../ -GNinja
-$ ninja
+$ bash ci/build.sh
 ```
 即可开始编译
 

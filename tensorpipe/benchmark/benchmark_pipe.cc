@@ -528,60 +528,57 @@ static void clientPingPongNonBlock(
 
 // Start with sending ping
 static void runClient(const Options& options) {
-  std::string addr = options.address;
-  int numWarmUps = kNumWarmUpRounds;
-  int numRoundTrips = options.numRoundTrips;
+    std::string addr = options.address;
+    int numWarmUps = kNumWarmUpRounds;
+    int numRoundTrips = options.numRoundTrips;
 
-  Data data;
-  data.numPayloads = options.numPayloads;
-  data.payloadSize = options.payloadSize;
-  for (size_t payloadIdx = 0; payloadIdx < options.numPayloads; payloadIdx++) {
-    data.expectedPayload.push_back(createFullCpuData(options.payloadSize));
-    data.expectedPayloadMetadata.push_back(
-        std::string(options.metadataSize, 0x42));
-    data.temporaryPayload.push_back(createEmptyCpuData(options.payloadSize));
-  }
-  data.numTensors = options.numTensors;
-  data.tensorSize = options.tensorSize;
-  data.tensorType = options.tensorType;
-  for (size_t tensorIdx = 0; tensorIdx < options.numTensors; tensorIdx++) {
-    data.expectedTensorMetadata.push_back(
-        std::string(options.metadataSize, 0x42));
-    if (data.tensorType == TensorType::kCpu) {
-      data.expectedCpuTensor.push_back(createFullCpuData(options.tensorSize));
-      data.temporaryCpuTensor.push_back(createEmptyCpuData(options.tensorSize));
-    } else if (data.tensorType == TensorType::kNpu) {
-      data.expectedNpuTensor.push_back(createFullNpuData(options.tensorSize));
-      data.temporaryNpuTensor.push_back(createEmptyNpuData(options.tensorSize));
-      data.npuStream = createNpuStream();
-    } else {
-      TP_THROW_ASSERT() << "Unknown tensor type";
+    Data data;
+    data.numPayloads = options.numPayloads;
+    data.payloadSize = options.payloadSize;
+    for (size_t payloadIdx = 0; payloadIdx < options.numPayloads; payloadIdx++) {
+        data.expectedPayload.push_back(createFullCpuData(options.payloadSize));
+        data.expectedPayloadMetadata.push_back(std::string(options.metadataSize, 0x42));
+        data.temporaryPayload.push_back(createEmptyCpuData(options.payloadSize));
     }
-  }
-  data.expectedMetadata = std::string(options.metadataSize, 0x42);
+    data.numTensors = options.numTensors;
+    data.tensorSize = options.tensorSize;
+    data.tensorType = options.tensorType;
+    for (size_t tensorIdx = 0; tensorIdx < options.numTensors; tensorIdx++) {
+        data.expectedTensorMetadata.push_back(std::string(options.metadataSize, 0x42));
+        if (data.tensorType == TensorType::kCpu) {
+            data.expectedCpuTensor.push_back(createFullCpuData(options.tensorSize));
+            data.temporaryCpuTensor.push_back(createEmptyCpuData(options.tensorSize));
+        } else if (data.tensorType == TensorType::kNpu) {
+            data.expectedNpuTensor.push_back(createFullNpuData(options.tensorSize));
+            data.temporaryNpuTensor.push_back(createEmptyNpuData(options.tensorSize));
+            data.npuStream = createNpuStream();
+        } else {
+            TP_THROW_ASSERT() << "Unknown tensor type";
+        }
+    }
+    data.npuSyncPeriod = options.npuSyncPeriod;
+    data.expectedMetadata = std::string(options.metadataSize, 0x42);
 
-  MultiDeviceMeasurements measurements;
-  measurements.cpu.reserve(options.numRoundTrips);
-  measurements.npu.reserve(options.numRoundTrips / data.npuSyncPeriod);
+    MultiDeviceMeasurements measurements;
+    measurements.cpu.reserve(options.numRoundTrips);
+    measurements.npu.reserve(options.numRoundTrips / data.npuSyncPeriod);
 
-  std::shared_ptr<Context> context = std::make_shared<Context>();
-  auto transportContext =
-      TensorpipeTransportRegistry().create(options.transport);
-  validateTransportContext(transportContext);
-  context->registerTransport(0, options.transport, transportContext);
+    std::shared_ptr<Context> context = std::make_shared<Context>();
+    auto transportContext = TensorpipeTransportRegistry().create(options.transport);
+    validateTransportContext(transportContext);
+    context->registerTransport(0, options.transport, transportContext);
 
-  auto channelContext = TensorpipeChannelRegistry().create(options.channel);
-  validateChannelContext(channelContext);
-  context->registerChannel(0, options.channel, channelContext);
+    auto channelContext = TensorpipeChannelRegistry().create(options.channel);
+    validateChannelContext(channelContext);
+    context->registerChannel(0, options.channel, channelContext);
 
-  std::shared_ptr<Pipe> pipe = context->connect(addr);
+    std::shared_ptr<Pipe> pipe = context->connect(addr);
 
-  std::promise<void> doneProm;
-  clientPingPongNonBlock(
-      std::move(pipe), numWarmUps, numRoundTrips, doneProm, data, measurements);
+    std::promise<void> doneProm;
+    clientPingPongNonBlock(std::move(pipe), numWarmUps, numRoundTrips, doneProm, data, measurements);
 
-  doneProm.get_future().get();
-  context->join();
+    doneProm.get_future().get();
+    context->join();
 }
 
 int main(int argc, char** argv) {
