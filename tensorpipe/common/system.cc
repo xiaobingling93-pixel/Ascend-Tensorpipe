@@ -11,6 +11,7 @@
 
 #ifdef __linux__
 #include <linux/capability.h>
+#include <linux/limits.h>
 #include <pthread.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -22,6 +23,7 @@
 #endif
 
 #include <array>
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -117,9 +119,21 @@ std::string tstampToStr(TimeStamp ts) {
   return ss.str();
 }
 
+std::string RealPath(const std::string &path)
+{
+    if (path.empty() || path.size() > PATH_MAX) {
+        return "";
+    }
+    char real_path[PATH_MAX] = {0};
+    if (realpath(path.c_str(), real_path) == nullptr) {
+        return "";
+    }
+    return std::string(real_path);
+}
+
 optional<std::string> getProcFsStr(const std::string& fileName, pid_t tid) {
   std::ostringstream oss;
-  oss << "/proc/" << tid << "/" << fileName;
+  oss << "/proc/" << tid << "/" << RealPath(fileName);
   std::ifstream f{oss.str()};
   if (!f.is_open()) {
     return nullopt;
