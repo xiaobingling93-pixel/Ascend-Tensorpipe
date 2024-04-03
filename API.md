@@ -1,4 +1,4 @@
-# Ascend NPU Tensorpipe API
+# Ascend Extension for TensorPipe API
 
 ## 介绍
 开源仓Tensorpipe基于华为Ascend pytorch/torch_npu的点对点通信支撑，接口全部用于torch_npu中rpc模块功能的实现。
