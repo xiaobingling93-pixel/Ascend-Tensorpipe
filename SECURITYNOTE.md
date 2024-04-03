@@ -1,4 +1,4 @@
-# Ascend Tensorpipe仓库安全声明
+# Ascend Extension for TensorPipe仓库安全声明
 
 ## 系统安全加固
 
