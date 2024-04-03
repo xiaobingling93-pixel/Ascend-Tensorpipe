@@ -1,4 +1,4 @@
-# Ascend NPU Tensorpipe
+# Ascend Extension for PyTorch
 
 #### 介绍
 开源仓Tensorpipe基于华为Ascend pytorch/torch_npu的适配。
