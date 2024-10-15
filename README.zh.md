@@ -46,5 +46,8 @@ RDMA设备可通过如下指令来确认：
 $ rdma dev show
 ```
 
+# 版本配套表
+[Ascend Tensorpipe版本配套信息请参考Ascend Extension for PyTorch主仓声明](https://gitee.com/ascend/pytorch/blob/master/README.zh.md)
+
 # 安全声明
 [Ascend Tensorpipe 代码仓库安全声明](SECURITYNOTE.md)
