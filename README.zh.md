@@ -16,7 +16,6 @@ $ bash ci/build.sh
 根据功能需求，在编译之前选择性启动./build/Options.cmake中Option features下的四个编译选项
 ```
 # Optional features
-option(TP_BUILD_BENCHMARK "Build benchmarks" OFF)
 option(TP_BUILD_MISC "Build misc tools" OFF)
 option(TP_BUILD_PYTHON "Build python bindings" OFF)
 option(TP_BUILD_TESTING "Build tests" OFF)

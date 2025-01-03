@@ -249,13 +249,6 @@ if(TP_BUILD_PYTHON)
 endif()
 
 
-## Benchmarks
-
-if (TP_BUILD_BENCHMARK)
-  add_subdirectory(benchmark)
-endif()
-
-
 ## Misc tools
 
 if (TP_BUILD_MISC)
