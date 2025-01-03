@@ -32,7 +32,7 @@ static bool checkFilePermission(const std::string& file_path)
     struct stat file_stat;
     if (stat(file_path.c_str(), &file_stat) == 0) {
         int permission = file_stat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
-        if (permission <= 0640) {
+        if (permission <= 0550) {
             return true;
         }
     }
@@ -74,7 +74,7 @@ static std::tuple<Error, DynamicLibraryHandle> create(const char* filename, int 
         throw std::runtime_error(error_str);
     }
     if (!checkFilePermission(info.dli_fname)) {
-        std::string error_str(" check the permissions error, make sure that the permission is less than 640.");
+        std::string error_str(" check the permissions error, make sure that the permission is less than 550.");
         error_str = file_name + error_str;
         throw std::runtime_error(error_str);
     }

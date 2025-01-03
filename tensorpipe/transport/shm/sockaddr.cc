@@ -40,6 +40,8 @@ Sockaddr Sockaddr::createAbstractUnixAddr(const std::string& name) {
     // Note: instead of using sizeof(sun) we compute the addrlen from
     // the string length of the abstract socket name. If we use
     // sizeof(sun), lsof shows all the trailing NUL characters.
+    TP_THROW_ASSERT_IF(sizeof(sun.sun_family) > SIZE_MAX - (offset + len)) <<
+        "Integer overflow in calculation.";
     return Sockaddr(
         reinterpret_cast<struct sockaddr*>(&sun),
         sizeof(sun.sun_family) + offset + len);
@@ -63,6 +65,8 @@ std::string Sockaddr::str() const {
         reinterpret_cast<const struct sockaddr_un*>(&addr_)};
     TP_DCHECK_EQ(sun->sun_path[0], '\0');
     constexpr size_t offset = 1;
+    TP_THROW_ASSERT_IF(addrlen_ < sizeof(sun->sun_family) + offset) <<
+        "Address length is too small to hold sockaddr_un structure.";
     const size_t len = addrlen_ - sizeof(sun->sun_family) - offset;
     return std::string(&sun->sun_path[offset], len);
   }

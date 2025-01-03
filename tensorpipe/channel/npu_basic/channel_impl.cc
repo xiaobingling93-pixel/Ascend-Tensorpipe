@@ -38,7 +38,8 @@ namespace npu_basic {
 namespace {
 
 size_t ceilOfRatio(size_t n, size_t d) {
-  return (n + d - 1) / d;
+    TP_THROW_ASSERT_IF(n > SIZE_MAX - (d - 1)) << "Integer overflow in calculation.";
+    return (n + d - 1) / d;
 }
 
 } // namespace
@@ -86,43 +87,44 @@ void ChannelImpl::sendImplFromLoop(
     Buffer buffer,
     size_t length,
     TSendCallback callback) {
-  if (length == 0) {
-    callback(error_);
-    return;
-  }
-
-  const Device device = buffer.device();
-  const size_t chunkLength = kSlotSize;
-  const size_t numChunks = ceilOfRatio(length, chunkLength);
-  for (size_t offset = 0; offset < length; offset += chunkLength) {
-    ChunkSendOpIter opIter = chunkSendOps_.emplaceBack(nextChunkBeingSent_++);
-    ChunkSendOperation& op = *opIter;
-    op.bufferSequenceNumber = sequenceNumber;
-    op.chunkId = offset / chunkLength;
-    op.numChunks = numChunks;
-    op.length = std::min(length - offset, chunkLength);
-    // Operations are processed in order, so we can afford to trigger the
-    // callback once the last operation is done.
-    if (op.chunkId == numChunks - 1) {
-      op.callback = std::move(callback);
+    if (length == 0) {
+        callback(error_);
+        return;
     }
 
-    if (device.type == kCpuDeviceType) {
-      op.isCpuBuffer = true;
-      op.devicePtr =
-          static_cast<uint8_t*>(buffer.unwrap<CpuBuffer>().ptr) + offset;
-    } else if (device.type == kNpuDeviceType) {
-      op.isCpuBuffer = false;
-      op.devicePtr =
-          static_cast<uint8_t*>(buffer.unwrap<NPUBuffer>().ptr) + offset;
-      op.stream = buffer.unwrap<NPUBuffer>().stream;
-      op.deviceIdx = device.index;
-    } else {
-      TP_THROW_ASSERT() << "Unexpected device type: " << device.type;
-    }
+    const Device device = buffer.device();
+    const size_t chunkLength = kSlotSize;
+    const size_t numChunks = ceilOfRatio(length, chunkLength);
+    TP_THROW_ASSERT_IF(length > SIZE_MAX - chunkLength) << "Integer overflow in calculation.";
+    for (size_t offset = 0; offset < length; offset += chunkLength) {
+        ChunkSendOpIter opIter = chunkSendOps_.emplaceBack(nextChunkBeingSent_++);
+        ChunkSendOperation& op = *opIter;
+        op.bufferSequenceNumber = sequenceNumber;
+        op.chunkId = offset / chunkLength;
+        op.numChunks = numChunks;
+        op.length = std::min(length - offset, chunkLength);
+        // Operations are processed in order, so we can afford to trigger the
+        // callback once the last operation is done.
+        if (op.chunkId == numChunks - 1) {
+            op.callback = std::move(callback);
+        }
 
-    chunkSendOps_.advanceOperation(opIter);
-  }
+        if (device.type == kCpuDeviceType) {
+            op.isCpuBuffer = true;
+            op.devicePtr =
+                static_cast<uint8_t*>(buffer.unwrap<CpuBuffer>().ptr) + offset;
+        } else if (device.type == kNpuDeviceType) {
+            op.isCpuBuffer = false;
+            op.devicePtr =
+                static_cast<uint8_t*>(buffer.unwrap<NPUBuffer>().ptr) + offset;
+            op.stream = buffer.unwrap<NPUBuffer>().stream;
+            op.deviceIdx = device.index;
+        } else {
+            TP_THROW_ASSERT() << "Unexpected device type: " << device.type;
+        }
+
+        chunkSendOps_.advanceOperation(opIter);
+    }
 }
 
 void ChannelImpl::advanceChunkSendOperation(
@@ -352,44 +354,45 @@ void ChannelImpl::recvImplFromLoop(
     Buffer buffer,
     size_t length,
     TRecvCallback callback) {
-  if (length == 0) {
-    callback(error_);
-    return;
-  }
-
-  const Device device = buffer.device();
-  const size_t chunkLength = kSlotSize;
-  const size_t numChunks = ceilOfRatio(length, chunkLength);
-  for (size_t offset = 0; offset < length; offset += chunkLength) {
-    ChunkRecvOpIter opIter =
-        chunkRecvOps_.emplaceBack(nextChunkBeingReceived_++);
-    ChunkRecvOperation& op = *opIter;
-    op.bufferSequenceNumber = sequenceNumber;
-    op.chunkId = offset / chunkLength;
-    op.numChunks = numChunks;
-    op.length = std::min(length - offset, chunkLength);
-    // Operations are processed in order, so we can afford to trigger the
-    // callback once the last operation is done.
-    if (op.chunkId == numChunks - 1) {
-      op.callback = std::move(callback);
+    if (length == 0) {
+        callback(error_);
+        return;
     }
 
-    if (device.type == kCpuDeviceType) {
-      op.isCpuBuffer = true;
-      op.devicePtr =
-          static_cast<uint8_t*>(buffer.unwrap<CpuBuffer>().ptr) + offset;
-    } else if (device.type == kNpuDeviceType) {
-      op.isCpuBuffer = false;
-      op.devicePtr =
-          static_cast<uint8_t*>(buffer.unwrap<NPUBuffer>().ptr) + offset;
-      op.stream = buffer.unwrap<NPUBuffer>().stream;
-      op.deviceIdx = device.index;
-    } else {
-      TP_THROW_ASSERT() << "Unexpected device type: " << device.type;
-    }
+    const Device device = buffer.device();
+    const size_t chunkLength = kSlotSize;
+    const size_t numChunks = ceilOfRatio(length, chunkLength);
+    TP_THROW_ASSERT_IF(length > SIZE_MAX - chunkLength) << "Integer overflow in calculation.";
+    for (size_t offset = 0; offset < length; offset += chunkLength) {
+        ChunkRecvOpIter opIter =
+            chunkRecvOps_.emplaceBack(nextChunkBeingReceived_++);
+        ChunkRecvOperation& op = *opIter;
+        op.bufferSequenceNumber = sequenceNumber;
+        op.chunkId = offset / chunkLength;
+        op.numChunks = numChunks;
+        op.length = std::min(length - offset, chunkLength);
+        // Operations are processed in order, so we can afford to trigger the
+        // callback once the last operation is done.
+        if (op.chunkId == numChunks - 1) {
+            op.callback = std::move(callback);
+        }
 
-    chunkRecvOps_.advanceOperation(opIter);
-  }
+        if (device.type == kCpuDeviceType) {
+            op.isCpuBuffer = true;
+            op.devicePtr =
+                static_cast<uint8_t*>(buffer.unwrap<CpuBuffer>().ptr) + offset;
+        } else if (device.type == kNpuDeviceType) {
+            op.isCpuBuffer = false;
+            op.devicePtr =
+                static_cast<uint8_t*>(buffer.unwrap<NPUBuffer>().ptr) + offset;
+            op.stream = buffer.unwrap<NPUBuffer>().stream;
+            op.deviceIdx = device.index;
+        } else {
+            TP_THROW_ASSERT() << "Unexpected device type: " << device.type;
+        }
+
+        chunkRecvOps_.advanceOperation(opIter);
+    }
 }
 
 void ChannelImpl::advanceChunkRecvOperation(
