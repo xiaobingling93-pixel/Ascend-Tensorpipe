@@ -116,6 +116,7 @@ class RingBufferRole {
     }
 
     const uint64_t tail = header_.template readMarker<RoleIdx>();
+    TP_THROW_ASSERT_IF(NumRoles == 0) << "Divide by zero.";
     const uint64_t head =
         header_.template readMarker<(RoleIdx + 1) % NumRoles>() +
         (RoleIdx + 1 == NumRoles ? header_.kDataPoolByteSize : 0);
@@ -205,26 +206,27 @@ class RingBufferRole {
     std::tie(numBuffers, buffers) = accessContiguousInTx<AllowPartial>(size);
 
     if (unlikely(numBuffers < 0)) {
-      return numBuffers;
+        return numBuffers;
     }
 
     if (unlikely(numBuffers == 0)) {
-      // Nothing to do.
-      return 0;
+        // Nothing to do.
+        return 0;
     } else if (likely(numBuffers == 1)) {
-      std::memcpy(buffers[0].ptr, buffer, buffers[0].len);
-      return buffers[0].len;
+        std::memcpy(buffers[0].ptr, buffer, buffers[0].len);
+        return buffers[0].len;
     } else if (likely(numBuffers == 2)) {
-      std::memcpy(buffers[0].ptr, buffer, buffers[0].len);
-      std::memcpy(
-          buffers[1].ptr,
-          reinterpret_cast<const uint8_t*>(buffer) + buffers[0].len,
-          buffers[1].len);
-      return buffers[0].len + buffers[1].len;
+        std::memcpy(buffers[0].ptr, buffer, buffers[0].len);
+        std::memcpy(
+            buffers[1].ptr,
+            reinterpret_cast<const uint8_t*>(buffer) + buffers[0].len,
+            buffers[1].len);
+        TP_THROW_ASSERT_IF(buffers[0].len > SIZE_MAX - buffers[1].len) << "Integer overflow in calculation.";
+        return buffers[0].len + buffers[1].len;
     } else {
-      TP_THROW_ASSERT() << "Bad number of buffers: " << numBuffers;
-      // Dummy return to make the compiler happy.
-      return -EINVAL;
+        TP_THROW_ASSERT() << "Bad number of buffers: " << numBuffers;
+        // Dummy return to make the compiler happy.
+        return -EINVAL;
     }
   }
 

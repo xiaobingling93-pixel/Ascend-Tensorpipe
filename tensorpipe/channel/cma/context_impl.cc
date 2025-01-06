@@ -114,17 +114,18 @@ Error performCopy(
     void* remotePtr,
     size_t length,
     pid_t remotePid) {
-  for (size_t offset = 0; offset < length; offset += kMaxBytesReadableAtOnce) {
-    Error error = callProcessVmReadv(
-        reinterpret_cast<uint8_t*>(localPtr) + offset,
-        reinterpret_cast<uint8_t*>(remotePtr) + offset,
-        std::min(length - offset, kMaxBytesReadableAtOnce),
-        remotePid);
-    if (error) {
-      return error;
+    TP_THROW_ASSERT_IF(length > SIZE_MAX - kMaxBytesReadableAtOnce) << "Integer overflow in calculation.";
+    for (size_t offset = 0; offset < length; offset += kMaxBytesReadableAtOnce) {
+        Error error = callProcessVmReadv(
+            reinterpret_cast<uint8_t*>(localPtr) + offset,
+            reinterpret_cast<uint8_t*>(remotePtr) + offset,
+            std::min(length - offset, kMaxBytesReadableAtOnce),
+            remotePid);
+        if (error) {
+            return error;
+        }
     }
-  }
-  return Error::kSuccess;
+    return Error::kSuccess;
 }
 
 } // namespace

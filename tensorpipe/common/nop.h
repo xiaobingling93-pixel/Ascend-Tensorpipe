@@ -78,6 +78,8 @@ class NopReader final {
       len2_ = 0;
     }
 
+    TP_THROW_ASSERT_IF(len1_ == 0) << "Buffer underflow: no data available to read.";
+
     *byte = *ptr1_;
     ptr1_++;
     len1_--;
@@ -86,6 +88,8 @@ class NopReader final {
 
   // NOLINTNEXTLINE(readability-identifier-naming)
   nop::Status<void> Read(void* begin, void* end) {
+    TP_THROW_ASSERT_IF(reinterpret_cast<uint8_t*>(end) < reinterpret_cast<uint8_t*>(begin)) <<
+        "Invalid memory range: end pointer is less than begin pointer.";
     size_t size =
         reinterpret_cast<uint8_t*>(end) - reinterpret_cast<uint8_t*>(begin);
 
@@ -98,6 +102,8 @@ class NopReader final {
       ptr2_ = nullptr;
       len2_ = 0;
     }
+
+    TP_THROW_ASSERT_IF(size > len1_) << "Buffer underflow: no data available to read.";
 
     std::memcpy(begin, ptr1_, size);
     ptr1_ += size;
@@ -114,6 +120,8 @@ class NopReader final {
       ptr2_ = nullptr;
       len2_ = 0;
     }
+
+    TP_THROW_ASSERT_IF(paddingBytes > len1_) << "Buffer underflow: not enough space to skip.";
 
     ptr1_ += paddingBytes;
     len1_ -= paddingBytes;
@@ -151,6 +159,8 @@ class NopWriter final {
       len2_ = 0;
     }
 
+    TP_THROW_ASSERT_IF(len1_ == 0) << "Buffer overflow: no space available to write.";
+
     *ptr1_ = byte;
     ptr1_++;
     len1_--;
@@ -159,6 +169,8 @@ class NopWriter final {
 
   // NOLINTNEXTLINE(readability-identifier-naming)
   nop::Status<void> Write(const void* begin, const void* end) {
+    TP_THROW_ASSERT_IF(reinterpret_cast<const uint8_t*>(end) < reinterpret_cast<const uint8_t*>(begin)) <<
+        "Invalid memory range: end pointer is less than begin pointer.";
     size_t size = reinterpret_cast<const uint8_t*>(end) -
         reinterpret_cast<const uint8_t*>(begin);
 
@@ -171,6 +183,8 @@ class NopWriter final {
       ptr2_ = nullptr;
       len2_ = 0;
     }
+
+    TP_THROW_ASSERT_IF(size > len1_) << "Buffer overflow: no space available to write.";
 
     std::memcpy(ptr1_, begin, size);
     ptr1_ += size;
@@ -188,6 +202,8 @@ class NopWriter final {
       ptr2_ = nullptr;
       len2_ = 0;
     }
+
+    TP_THROW_ASSERT_IF(paddingBytes > len1_) << "Buffer overflow: no space available to skip.";
 
     std::memset(ptr1_, paddingValue, paddingBytes);
     ptr1_ += paddingBytes;

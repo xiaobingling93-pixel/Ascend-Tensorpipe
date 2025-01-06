@@ -138,48 +138,49 @@ RingbufferReadOperation::RingbufferReadOperation(
 template <int NumRoles, int RoleIdx>
 size_t RingbufferReadOperation::handleRead(
     RingBufferRole<NumRoles, RoleIdx>& inbox) {
-  ssize_t ret;
-  size_t bytesReadNow = 0;
+    ssize_t ret;
+    size_t bytesReadNow = 0;
 
-  // Start read transaction. This end of the connection is the only consumer for
-  // this ringbuffer, and all reads are done from the reactor thread, so there
-  // cannot be another transaction already going on. Fail hard in case.
-  ret = inbox.startTx();
-  TP_THROW_SYSTEM_IF(ret < 0, -ret);
+    // Start read transaction. This end of the connection is the only consumer for
+    // this ringbuffer, and all reads are done from the reactor thread, so there
+    // cannot be another transaction already going on. Fail hard in case.
+    ret = inbox.startTx();
+    TP_THROW_SYSTEM_IF(ret < 0, -ret);
 
-  if (mode_ == READ_LENGTH) {
-    uint32_t length;
-    ret = inbox.template readInTx</*AllowPartial=*/false>(
-        &length, sizeof(length));
-    if (likely(ret >= 0)) {
-      mode_ = READ_PAYLOAD;
-      bytesReadNow += ret;
-      if (nopObject_ != nullptr) {
-        len_ = length;
-      } else if (ptrProvided_) {
-        TP_DCHECK_EQ(length, len_);
-      } else {
-        len_ = length;
-        buf_ = std::make_unique<uint8_t[]>(len_);
-        ptr_ = buf_.get();
-      }
-    } else if (unlikely(ret != -ENODATA)) {
-      TP_THROW_SYSTEM(-ret);
-    }
+    if (mode_ == READ_LENGTH) {
+        uint32_t length;
+        ret = inbox.template readInTx</*AllowPartial=*/false>(
+            &length, sizeof(length));
+        if (likely(ret >= 0)) {
+            mode_ = READ_PAYLOAD;
+            bytesReadNow += ret;
+            if (nopObject_ != nullptr) {
+                len_ = length;
+            } else if (ptrProvided_) {
+                TP_DCHECK_EQ(length, len_);
+            } else {
+                len_ = length;
+                buf_ = std::make_unique<uint8_t[]>(len_);
+                ptr_ = buf_.get();
+            }
+        } else if (unlikely(ret != -ENODATA)) {
+            TP_THROW_SYSTEM(-ret);
+        }
   }
 
   if (mode_ == READ_PAYLOAD) {
     if (nopObject_ != nullptr) {
-      ret = readNopObject(inbox);
+        ret = readNopObject(inbox);
     } else {
-      ret = inbox.template readInTx</*AllowPartial=*/true>(
-          reinterpret_cast<uint8_t*>(ptr_) + bytesRead_, len_ - bytesRead_);
+        TP_THROW_ASSERT_IF(bytesRead_ > len_) << "buffer over-read detected.";
+        ret = inbox.template readInTx</*AllowPartial=*/true>(
+            reinterpret_cast<uint8_t*>(ptr_) + bytesRead_, len_ - bytesRead_);
     }
     if (likely(ret >= 0)) {
-      bytesRead_ += ret;
-      bytesReadNow += ret;
+        bytesRead_ += ret;
+        bytesReadNow += ret;
     } else if (unlikely(ret != -ENODATA)) {
-      TP_THROW_SYSTEM(-ret);
+        TP_THROW_SYSTEM(-ret);
     }
   }
 
@@ -236,51 +237,52 @@ RingbufferWriteOperation::RingbufferWriteOperation(
 template <int NumRoles, int RoleIdx>
 size_t RingbufferWriteOperation::handleWrite(
     RingBufferRole<NumRoles, RoleIdx>& outbox) {
-  ssize_t ret;
-  size_t bytesWrittenNow = 0;
+    ssize_t ret;
+    size_t bytesWrittenNow = 0;
 
-  // Start write transaction. This end of the connection is the only producer
-  // for this ringbuffer, and all writes are done from the reactor thread, so
-  // there cannot be another transaction already going on. Fail hard in case.
-  ret = outbox.startTx();
-  TP_THROW_SYSTEM_IF(ret < 0, -ret);
+    // Start write transaction. This end of the connection is the only producer
+    // for this ringbuffer, and all writes are done from the reactor thread, so
+    // there cannot be another transaction already going on. Fail hard in case.
+    ret = outbox.startTx();
+    TP_THROW_SYSTEM_IF(ret < 0, -ret);
 
-  if (mode_ == WRITE_LENGTH) {
-    uint32_t length = len_;
-    ret = outbox.template writeInTx</*AllowPartial=*/false>(
-        &length, sizeof(length));
-    if (likely(ret >= 0)) {
-      mode_ = WRITE_PAYLOAD;
-      bytesWrittenNow += ret;
-    } else if (unlikely(ret != -ENODATA)) {
-      TP_THROW_SYSTEM(-ret);
+    if (mode_ == WRITE_LENGTH) {
+        uint32_t length = len_;
+        ret = outbox.template writeInTx</*AllowPartial=*/false>(
+            &length, sizeof(length));
+        if (likely(ret >= 0)) {
+            mode_ = WRITE_PAYLOAD;
+            bytesWrittenNow += ret;
+        } else if (unlikely(ret != -ENODATA)) {
+            TP_THROW_SYSTEM(-ret);
+        }
     }
-  }
 
-  if (mode_ == WRITE_PAYLOAD) {
-    if (nopObject_ != nullptr) {
-      ret = writeNopObject(outbox);
-    } else {
-      ret = outbox.template writeInTx</*AllowPartial=*/true>(
-          reinterpret_cast<const uint8_t*>(ptr_) + bytesWritten_,
-          len_ - bytesWritten_);
+    if (mode_ == WRITE_PAYLOAD) {
+        if (nopObject_ != nullptr) {
+            ret = writeNopObject(outbox);
+        } else {
+            TP_THROW_ASSERT_IF(bytesWritten_ > len_) << "buffer over-write detected.";
+            ret = outbox.template writeInTx</*AllowPartial=*/true>(
+                reinterpret_cast<const uint8_t*>(ptr_) + bytesWritten_,
+                len_ - bytesWritten_);
+        }
+        if (likely(ret >= 0)) {
+            bytesWritten_ += ret;
+            bytesWrittenNow += ret;
+        } else if (unlikely(ret != -ENODATA)) {
+            TP_THROW_SYSTEM(-ret);
+        }
     }
-    if (likely(ret >= 0)) {
-      bytesWritten_ += ret;
-      bytesWrittenNow += ret;
-    } else if (unlikely(ret != -ENODATA)) {
-      TP_THROW_SYSTEM(-ret);
+
+    ret = outbox.commitTx();
+    TP_THROW_SYSTEM_IF(ret < 0, -ret);
+
+    if (completed()) {
+        fn_(Error::kSuccess);
     }
-  }
 
-  ret = outbox.commitTx();
-  TP_THROW_SYSTEM_IF(ret < 0, -ret);
-
-  if (completed()) {
-    fn_(Error::kSuccess);
-  }
-
-  return bytesWrittenNow;
+    return bytesWrittenNow;
 }
 
 template <int NumRoles, int RoleIdx>

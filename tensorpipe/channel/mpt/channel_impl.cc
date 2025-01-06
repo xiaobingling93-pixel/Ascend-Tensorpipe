@@ -207,6 +207,8 @@ void ChannelImpl::writeChunks(SendOpIter opIter) {
   for (uint64_t laneIdx = 0; laneIdx < lanes_.size(); laneIdx++) {
     // Insert "cutpoints" at equally-spaced intervals in the buffer, rounding
     // them down if they don't end up being at an integer position.
+    TP_THROW_ASSERT_IF(laneIdx > 0 && op.length > UINT64_MAX / laneIdx) << "Integer overflow in calculation of offsetStart.";
+    TP_THROW_ASSERT_IF(op.length > UINT64_MAX / (laneIdx + 1)) << "Integer overflow in calculation of offsetEnd.";
     uint64_t offsetStart = op.length * laneIdx / lanes_.size();
     uint64_t offsetEnd = op.length * (laneIdx + 1) / lanes_.size();
     // As void "has no size" we cannot do pointer arithmetic on it. We need to
