@@ -32,7 +32,6 @@ endmacro()
 # TODO: Default to ON if NPU available.
 
 # Optional features
-option(TP_BUILD_BENCHMARK "Build benchmarks" ON)
 option(TP_BUILD_MISC "Build misc tools" OFF)
 option(TP_BUILD_PYTHON "Build python bindings" OFF)
 option(TP_BUILD_TESTING "Build tests" ON)
