@@ -51,7 +51,7 @@ Ascend Tensorpipe仓库作为torch_npu的三方依赖库支持源码编译安装
 ## 运行安全声明
 
 1. 在非测试场景中Ascend Tensorpipe不会单独使用，用户的业务逻辑在Ascend PyTorch的RPC模块运行，根据环境资源状况编写对应训练脚本。在上层训练脚本与资源状况不匹配的场景中，如数据集加载内存大小超出内存容量限制、通信server无法链接、训练脚本在本地生成数据超过磁盘空间大小等情况，可能引发错误并导致进程意外退出。建议用户根据PyTorch报错信息定位错误原因，tensorpipe抛出的异常会被Ascend PyTorch捕获并解析，问题通常分为通信问题和npu设备内存使用或搬运问题。
-2. 如果要使用PyTorch的RPC模块，在完成安装后，需要确认安装目录下的libibverbs.so.1和libascendcl.so两个文件权限不大于640，防止so包被篡改产生命令注入的安全风险
+2. 如果要使用PyTorch的RPC模块，在完成安装后，需要确认安装目录下的libibverbs.so.1和libascendcl.so两个文件权限不大于550，防止so包被篡改产生命令注入的安全风险
 
 ## 公网地址声明
 
