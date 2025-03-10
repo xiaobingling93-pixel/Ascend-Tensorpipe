@@ -10,3 +10,9 @@
 | 开发引入 | 不涉及 | tensorpipe/test/transport/ibv/sockaddr_test.cc | 1.2.3.4:5 | 测试用例使用的虚拟IP |
 | 开发引入 | 不涉及 | tensorpipe/test/transport/ibv/sockaddr_test.cc | 1.2.3.4:0 | 测试用例使用的虚拟IP |
 | 开发引入 | 不涉及 | tensorpipe/test/transport/ibv/sockaddr_test.cc | 1.2.3.4 | 测试用例使用的虚拟IP |
+| 开发引入 | 不涉及 | .gitmodules | https://gitee.com/mirrors/pybind11.git | 依赖的开源代码仓 |
+| 开发引入 | 不涉及 | .gitmodules | https://gitee.com/mirrors/libuv.git | 依赖的开源代码仓 |
+| 开发引入 | 不涉及 | .gitmodules | https://gitee.com/mirrors/googletest.git | 依赖的开源代码仓 |
+| 开发引入 | 不涉及 | .gitmodules | https://gitee.com/mirrors/libnop.git | 依赖的开源代码仓 |
+| 开发引入 | 不涉及 | cmake/FindPackageHandleStandardArgs.cmake | https://cmake.org/licensing | 保留原始版权声明和链接，确保许可证信息完整 |
+| 开发引入 | 不涉及 | cmake/FindPackageMessage.cmake | https://cmake.org/licensing | 保留原始版权声明和链接，确保许可证信息完整 |
