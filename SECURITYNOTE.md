@@ -69,5 +69,5 @@ Ascend Tensorpipe需要在设备间进行通信，其通信控制由PyTorch和As
 
 ## 通信矩阵
 
-Ascned Tensorpipe需要进行网络通信。使用TCP协议进行通信，通信端口见[Ascend PyTorch通信矩阵信息](https://gitee.com/ascend/pytorch/blob/master/SECURITYNOTE.md)。
+Ascend Tensorpipe需要进行网络通信。使用TCP协议进行通信，通信端口见[Ascend PyTorch通信矩阵信息](https://gitee.com/ascend/pytorch/blob/master/SECURITYNOTE.md)。
 
