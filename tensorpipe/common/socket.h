@@ -11,6 +11,7 @@
 
 #include <sys/socket.h>
 
+#include <array>
 #include <chrono>
 #include <cstring>
 #include <memory>
