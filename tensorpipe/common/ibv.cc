@@ -11,6 +11,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <securec.h>
 
 namespace tensorpipe_npu {
 
@@ -43,13 +44,13 @@ struct IbvAddress makeIbvAddress(
     uint8_t portNum,
     uint8_t globalIdentifierIndex) {
   struct IbvAddress addr;
-  std::memset(&addr, 0, sizeof(addr));
+  memset_s(&addr, sizeof(addr), 0, sizeof(addr));
 
   addr.portNum = portNum;
   addr.globalIdentifierIndex = globalIdentifierIndex;
 
   IbvLib::port_attr portAttr;
-  std::memset(&portAttr, 0, sizeof(portAttr));
+  memset_s(&portAttr, sizeof(portAttr), 0, sizeof(portAttr));
   TP_CHECK_IBV_INT(ibvLib.query_port(context.get(), portNum, &portAttr));
   addr.localIdentifier = portAttr.lid;
   addr.maximumTransmissionUnit = portAttr.active_mtu;
@@ -65,7 +66,7 @@ struct IbvSetupInformation makeIbvSetupInformation(
     const IbvAddress& addr,
     const IbvQueuePair& qp) {
   struct IbvSetupInformation info;
-  std::memset(&info, 0, sizeof(info));
+  memset_s(&info, sizeof(info), 0, sizeof(info));
 
   info.localIdentifier = addr.localIdentifier;
   info.globalIdentifier = addr.globalIdentifier;
@@ -81,7 +82,7 @@ void transitionIbvQueuePairToInit(
     IbvQueuePair& qp,
     const IbvAddress& selfAddr) {
   IbvLib::qp_attr attr;
-  std::memset(&attr, 0, sizeof(attr));
+  memset_s(&attr, sizeof(attr), 0, sizeof(attr));
   int attrMask = 0;
 
   attrMask |= IbvLib::QP_STATE;
@@ -109,7 +110,7 @@ void transitionIbvQueuePairToReadyToReceive(
     const IbvAddress& selfAddr,
     const IbvSetupInformation& destinationInfo) {
   IbvLib::qp_attr attr;
-  std::memset(&attr, 0, sizeof(attr));
+  memset_s(&attr, sizeof(attr), 0, sizeof(attr));
   int attrMask = 0;
 
   attrMask |= IbvLib::QP_STATE;
@@ -154,7 +155,7 @@ void transitionIbvQueuePairToReadyToSend(
     const IbvLib& ibvLib,
     IbvQueuePair& qp) {
   IbvLib::qp_attr attr;
-  std::memset(&attr, 0, sizeof(attr));
+  memset_s(&attr, sizeof(attr), 0, sizeof(attr));
   int attrMask = 0;
 
   attrMask |= IbvLib::QP_STATE;
@@ -182,7 +183,7 @@ void transitionIbvQueuePairToReadyToSend(
 
 void transitionIbvQueuePairToError(const IbvLib& ibvLib, IbvQueuePair& qp) {
   IbvLib::qp_attr attr;
-  std::memset(&attr, 0, sizeof(attr));
+  memset_s(&attr, sizeof(attr), 0, sizeof(attr));
   int attrMask = 0;
 
   attrMask |= IbvLib::QP_STATE;

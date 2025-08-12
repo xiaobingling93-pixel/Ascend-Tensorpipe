@@ -13,7 +13,7 @@
 #include <cstring>
 #include <sstream>
 #include <utility>
-
+#include <securec.h>
 #include <arpa/inet.h>
 #include <net/if.h>
 
@@ -69,7 +69,7 @@ Sockaddr Sockaddr::createInetSockAddr(const std::string& str) {
   // Try to convert an IPv4 address.
   {
     struct sockaddr_in addr;
-    std::memset(&addr, 0, sizeof(addr));
+    memset_s(&addr, sizeof(addr), 0, sizeof(addr));
     auto rv = inet_pton(AF_INET, addrStr.c_str(), &addr.sin_addr);
     TP_THROW_SYSTEM_IF(rv < 0, errno);
     if (rv == 1) {
@@ -82,7 +82,7 @@ Sockaddr Sockaddr::createInetSockAddr(const std::string& str) {
   // Try to convert an IPv6 address.
   {
     struct sockaddr_in6 addr;
-    std::memset(&addr, 0, sizeof(addr));
+    memset_s(&addr, sizeof(addr), 0, sizeof(addr));
 
     auto interfacePos = addrStr.find('%');
     if (interfacePos != std::string::npos) {

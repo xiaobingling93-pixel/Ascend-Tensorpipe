@@ -9,7 +9,7 @@
 #include <tensorpipe/transport/ibv/sockaddr.h>
 
 #include <netinet/in.h>
-
+#include <securec.h>
 #include <gtest/gtest.h>
 
 using namespace tensorpipe_npu::transport;
@@ -116,7 +116,7 @@ TEST(IbvSockaddr, Inet6) {
 
   {
     sockaddr_in6 sa;
-    std::memset(&sa, 0, sizeof(sa));
+    memset_s(&sa, sizeof(sa), 0, sizeof(sa));
     sa.sin6_family = AF_INET6;
     sa.sin6_port = ntohs(42);
     sa.sin6_flowinfo = 0;

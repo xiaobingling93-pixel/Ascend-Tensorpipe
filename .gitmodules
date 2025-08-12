@@ -10,3 +10,6 @@
 [submodule "third_party/libnop"]
 	path = third_party/libnop
 	url = https://gitee.com/mirrors/libnop.git
+[submodule "third_party/secure_c"]
+	path = third_party/secure_c
+	url = https://gitee.com/openeuler/libboundscheck.git

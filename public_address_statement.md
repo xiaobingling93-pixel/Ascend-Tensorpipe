@@ -16,3 +16,4 @@
 | 开发引入 | 不涉及 | .gitmodules | https://gitee.com/mirrors/libnop.git | 依赖的开源代码仓 |
 | 开发引入 | 不涉及 | cmake/FindPackageHandleStandardArgs.cmake | https://cmake.org/licensing | 保留原始版权声明和链接，确保许可证信息完整 |
 | 开发引入 | 不涉及 | cmake/FindPackageMessage.cmake | https://cmake.org/licensing | 保留原始版权声明和链接，确保许可证信息完整 |
+| 开发引入 | 不涉及 | .gitmoudles | https://gitee.com/openeuler/libboundscheck.git | 依赖的开源代码仓 |

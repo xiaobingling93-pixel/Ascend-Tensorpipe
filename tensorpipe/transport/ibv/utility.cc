@@ -24,7 +24,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <securec.h>
 #include <tensorpipe/common/error_macros.h>
 #include <tensorpipe/common/socket.h>
 #include <tensorpipe/transport/ibv/error.h>
@@ -76,7 +76,7 @@ using AddressInfo = std::unique_ptr<struct addrinfo, AddressInfoDeleter>;
 
 std::tuple<Error, AddressInfo> createAddressInfo(std::string host) {
   struct addrinfo hints;
-  std::memset(&hints, 0, sizeof(hints));
+  memset_s(&hints, sizeof(hints), 0, sizeof(hints));
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;

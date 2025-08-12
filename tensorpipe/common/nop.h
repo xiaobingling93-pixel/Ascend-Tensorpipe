@@ -13,7 +13,7 @@
 #include <nop/status.h>
 #include <nop/utility/buffer_reader.h>
 #include <nop/utility/buffer_writer.h>
-
+#include <securec.h>
 #include <tensorpipe/common/defs.h>
 #include <tensorpipe/common/optional.h>
 
@@ -94,18 +94,22 @@ class NopReader final {
         reinterpret_cast<uint8_t*>(end) - reinterpret_cast<uint8_t*>(begin);
 
     if (unlikely(len1_ < size)) {
-      std::memcpy(begin, ptr1_, len1_);
-      begin = reinterpret_cast<uint8_t*>(begin) + len1_;
-      size -= len1_;
-      ptr1_ = ptr2_;
-      len1_ = len2_;
-      ptr2_ = nullptr;
-      len2_ = 0;
+        const auto ret = memcpy_s(begin, len1_, ptr1_, len1_);
+        TP_THROW_ASSERT_IF(ret != EOK) << " nop.h Read memcpy_s is failed!";
+        begin = reinterpret_cast<uint8_t*>(begin) + len1_;
+        size -= len1_;
+        ptr1_ = ptr2_;
+        len1_ = len2_;
+        ptr2_ = nullptr;
+        len2_ = 0;
     }
 
     TP_THROW_ASSERT_IF(size > len1_) << "Buffer underflow: no data available to read.";
 
-    std::memcpy(begin, ptr1_, size);
+    const auto ret = memcpy_s(begin, len1_, ptr1_, size);
+    if (len1_ != 0) {
+        TP_THROW_ASSERT_IF(ret != EOK) << " nop.h Read memcpy_s is failed!";
+    }
     ptr1_ += size;
     len1_ -= size;
     return nop::ErrorStatus::None;
@@ -175,18 +179,22 @@ class NopWriter final {
         reinterpret_cast<const uint8_t*>(begin);
 
     if (unlikely(len1_ < size)) {
-      std::memcpy(ptr1_, begin, len1_);
-      begin = reinterpret_cast<const uint8_t*>(begin) + len1_;
-      size -= len1_;
-      ptr1_ = ptr2_;
-      len1_ = len2_;
-      ptr2_ = nullptr;
-      len2_ = 0;
+        const auto ret = memcpy_s(ptr1_, len1_, begin, len1_);
+        TP_THROW_ASSERT_IF(ret != EOK) << " nop.h Write memcpy_s is failed!";
+        begin = reinterpret_cast<const uint8_t*>(begin) + len1_;
+        size -= len1_;
+        ptr1_ = ptr2_;
+        len1_ = len2_;
+        ptr2_ = nullptr;
+        len2_ = 0;
     }
 
     TP_THROW_ASSERT_IF(size > len1_) << "Buffer overflow: no space available to write.";
 
-    std::memcpy(ptr1_, begin, size);
+    const auto ret = memcpy_s(ptr1_, len1_, begin, size);
+    if (len1_ != 0) {
+        TP_THROW_ASSERT_IF(ret != EOK) << " nop.h Write memcpy_s is failed!";
+    }
     ptr1_ += size;
     len1_ -= size;
     return nop::ErrorStatus::None;
@@ -195,17 +203,17 @@ class NopWriter final {
   // NOLINTNEXTLINE(readability-identifier-naming)
   nop::Status<void> Skip(size_t paddingBytes, uint8_t paddingValue) {
     if (unlikely(len1_ < paddingBytes)) {
-      std::memset(ptr1_, paddingValue, paddingBytes);
-      paddingBytes -= len1_;
-      ptr1_ = ptr2_;
-      len1_ = len2_;
-      ptr2_ = nullptr;
-      len2_ = 0;
+        memset_s(ptr1_, len1_, paddingValue, paddingBytes);
+        paddingBytes -= len1_;
+        ptr1_ = ptr2_;
+        len1_ = len2_;
+        ptr2_ = nullptr;
+        len2_ = 0;
     }
 
     TP_THROW_ASSERT_IF(paddingBytes > len1_) << "Buffer overflow: no space available to skip.";
 
-    std::memset(ptr1_, paddingValue, paddingBytes);
+    memset_s(ptr1_, len1_, paddingValue, paddingBytes);
     ptr1_ += paddingBytes;
     len1_ -= paddingBytes;
     return nop::ErrorStatus::None;

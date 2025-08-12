@@ -13,6 +13,7 @@
 #include <memory>
 #include <tuple>
 #include <vector>
+#include <securec.h>
 
 #include <gtest/gtest.h>
 
@@ -55,7 +56,8 @@ inline std::pair<tensorpipe_npu::Message, Storage> makeMessage(
     size_t length = payload.data.length();
     auto data = std::unique_ptr<uint8_t, std::default_delete<uint8_t[]>>(
         new uint8_t[length]);
-    std::memcpy(data.get(), &payload.data[0], length);
+    const auto ret = memcpy_s(data.get(), length, &payload.data[0], length);
+    TP_THROW_ASSERT_IF(ret != EOK) << " pipe_test.h makeMessage#1 memcpy_s is failed!";
     message.payloads.push_back({
         .data = data.get(),
         .length = length,
@@ -69,10 +71,11 @@ inline std::pair<tensorpipe_npu::Message, Storage> makeMessage(
     tensorpipe_npu::Buffer buffer;
     std::shared_ptr<void> data;
     if (tensor.device.type == tensorpipe_npu::kCpuDeviceType) {
-      data = std::unique_ptr<uint8_t, std::default_delete<uint8_t[]>>(
-          new uint8_t[length]);
-      std::memcpy(data.get(), &tensor.data[0], length);
-      buffer = tensorpipe_npu::CpuBuffer{.ptr = data.get()};
+        data = std::unique_ptr<uint8_t, std::default_delete<uint8_t[]>>(
+            new uint8_t[length]);
+        const auto ret = memcpy_s(data.get(), length, &tensor.data[0], length);
+        TP_THROW_ASSERT_IF(ret != EOK) << " pipe_test.h makeMessage#2 memcpy_s is failed!";
+        buffer = tensorpipe_npu::CpuBuffer{.ptr = data.get()};
     } else {
       ADD_FAILURE() << "Unexpected source device: " << tensor.device.toString();
     }

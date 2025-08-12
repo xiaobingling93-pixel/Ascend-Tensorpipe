@@ -13,7 +13,7 @@
 #include <cstring>
 #include <tuple>
 #include <utility>
-
+#include <securec.h>
 #include <tensorpipe/common/ringbuffer.h>
 
 namespace tensorpipe_npu {
@@ -179,15 +179,19 @@ class RingBufferRole {
       // Nothing to do.
       return 0;
     } else if (likely(numBuffers == 1)) {
-      std::memcpy(buffer, buffers[0].ptr, buffers[0].len);
-      return buffers[0].len;
+        const auto ret = memcpy_s(buffer, buffers[0].len, buffers[0].ptr, buffers[0].len);
+        TP_THROW_ASSERT_IF(ret != EOK) << " ringbuffer_role.h RingBufferRole#1 memcpy_s is failed!";
+        return buffers[0].len;
     } else if (likely(numBuffers == 2)) {
-      std::memcpy(buffer, buffers[0].ptr, buffers[0].len);
-      std::memcpy(
-          reinterpret_cast<uint8_t*>(buffer) + buffers[0].len,
-          buffers[1].ptr,
-          buffers[1].len);
-      return buffers[0].len + buffers[1].len;
+        auto ret = memcpy_s(buffer, buffers[0].len, buffers[0].ptr, buffers[0].len);
+        TP_THROW_ASSERT_IF(ret != EOK) << " ringbuffer_role.h RingBufferRole#2 memcpy_s is failed!";
+        ret = memcpy_s(
+            reinterpret_cast<uint8_t*>(buffer) + buffers[0].len,
+            buffers[1].len,
+            buffers[1].ptr,
+            buffers[1].len);
+        TP_THROW_ASSERT_IF(ret != EOK) << " ringbuffer_role.h RingBufferRole#3 memcpy_s is failed!";
+        return buffers[0].len + buffers[1].len;
     } else {
       TP_THROW_ASSERT() << "Bad number of buffers: " << numBuffers;
       // Dummy return to make the compiler happy.
@@ -213,14 +217,18 @@ class RingBufferRole {
         // Nothing to do.
         return 0;
     } else if (likely(numBuffers == 1)) {
-        std::memcpy(buffers[0].ptr, buffer, buffers[0].len);
+        const auto ret = memcpy_s(buffers[0].ptr, buffers[0].len, buffer, buffers[0].len);
+        TP_THROW_ASSERT_IF(ret != EOK) << " ringbuffer_role.h RingBufferRole#4 memcpy_s is failed!";
         return buffers[0].len;
     } else if (likely(numBuffers == 2)) {
-        std::memcpy(buffers[0].ptr, buffer, buffers[0].len);
-        std::memcpy(
+        auto ret = memcpy_s(buffers[0].ptr, buffers[0].len, buffer, buffers[0].len);
+        TP_THROW_ASSERT_IF(ret != EOK) << " ringbuffer_role.h RingBufferRole#5 memcpy_s is failed!";
+        ret = memcpy_s(
             buffers[1].ptr,
+            buffers[1].len,
             reinterpret_cast<const uint8_t*>(buffer) + buffers[0].len,
             buffers[1].len);
+        TP_THROW_ASSERT_IF(ret != EOK) << " ringbuffer_role.h RingBufferRole#6 memcpy_s is failed!";
         TP_THROW_ASSERT_IF(buffers[0].len > SIZE_MAX - buffers[1].len) << "Integer overflow in calculation.";
         return buffers[0].len + buffers[1].len;
     } else {

@@ -13,7 +13,7 @@
 
 #include <deque>
 #include <vector>
-
+#include <securec.h>
 #include <tensorpipe/common/callback.h>
 #include <tensorpipe/common/defs.h>
 #include <tensorpipe/common/epoll_loop.h>
@@ -132,7 +132,7 @@ void ConnectionImpl::initImplFromLoop() {
   // Create and init queue pair.
   {
     IbvLib::qp_init_attr initAttr;
-    std::memset(&initAttr, 0, sizeof(initAttr));
+    memset_s(&initAttr, sizeof(initAttr), 0, sizeof(initAttr));
     initAttr.qp_type = IbvLib::QPT_RC;
     initAttr.send_cq = context_->getReactor().getIbvCq().get();
     initAttr.recv_cq = context_->getReactor().getIbvCq().get();

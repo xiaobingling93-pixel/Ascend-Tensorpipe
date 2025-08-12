@@ -13,7 +13,7 @@
 #include <memory>
 
 #include <uv.h>
-
+#include <securec.h>
 #include <tensorpipe/common/deferred_executor.h>
 #include <tensorpipe/common/defs.h>
 #include <tensorpipe/transport/uv/sockaddr.h>
@@ -311,7 +311,7 @@ inline std::tuple<int, Addrinfo> getAddrinfoFromLoop(
     uv_loop_t* loop,
     std::string hostname) {
   struct addrinfo hints;
-  std::memset(&hints, 0, sizeof(hints));
+  memset_s(&hints, sizeof(hints), 0, sizeof(hints));
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;

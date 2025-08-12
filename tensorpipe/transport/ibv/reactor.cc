@@ -8,7 +8,7 @@
  */
 
 #include <tensorpipe/transport/ibv/reactor.h>
-
+#include <securec.h>
 #include <tensorpipe/common/system.h>
 #include <tensorpipe/transport/ibv/constants.h>
 
@@ -30,7 +30,7 @@ Reactor::Reactor(IbvLib ibvLib, IbvDeviceList deviceList)
       /*comp_vector=*/0);
 
   IbvLib::srq_init_attr srqInitAttr;
-  std::memset(&srqInitAttr, 0, sizeof(srqInitAttr));
+  memset_s(&srqInitAttr, sizeof(srqInitAttr), 0, sizeof(srqInitAttr));
   srqInitAttr.attr.max_wr = kNumPendingRecvReqs;
   srq_ = createIbvSharedReceiveQueue(getIbvLib(), pd_, srqInitAttr);
 
@@ -45,7 +45,7 @@ void Reactor::postRecvRequestsOnSRQ(int num) {
   while (num > 0) {
     IbvLib::recv_wr* badRecvWr = nullptr;
     std::array<IbvLib::recv_wr, kNumPolledWorkCompletions> wrs;
-    std::memset(wrs.data(), 0, sizeof(wrs));
+    memset_s(wrs.data(), sizeof(wrs), 0, sizeof(wrs));
     for (int i = 0; i < std::min(num, kNumPolledWorkCompletions) - 1; i++) {
       wrs[i].next = &wrs[i + 1];
     }
@@ -177,7 +177,7 @@ void Reactor::postWrite(IbvQueuePair& qp, WriteInfo info) {
     list.lkey = info.lkey;
 
     IbvLib::send_wr wr;
-    std::memset(&wr, 0, sizeof(wr));
+    memset_s(&wr, sizeof(wr), 0, sizeof(wr));
     wr.wr_id = kWriteRequestId;
     wr.sg_list = &list;
     wr.num_sge = 1;
@@ -202,7 +202,7 @@ void Reactor::postWrite(IbvQueuePair& qp, WriteInfo info) {
 void Reactor::postAck(IbvQueuePair& qp, AckInfo info) {
   if (numAvailableAcks_ > 0) {
     IbvLib::send_wr wr;
-    std::memset(&wr, 0, sizeof(wr));
+    memset_s(&wr, sizeof(wr), 0, sizeof(wr));
     wr.wr_id = kAckRequestId;
     wr.opcode = IbvLib::WR_SEND_WITH_IMM;
     wr.imm_data = info.length;

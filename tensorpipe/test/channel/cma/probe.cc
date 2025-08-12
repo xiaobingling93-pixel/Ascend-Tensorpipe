@@ -14,7 +14,7 @@
 #include <sys/uio.h>
 #include <sys/un.h>
 #include <unistd.h>
-
+#include <securec.h>
 #include <tensorpipe/channel/cma/factory.h>
 #include <tensorpipe/common/defs.h>
 
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
   TP_THROW_SYSTEM_IF(fd < 0, errno);
 
   struct sockaddr_un socketAddr;
-  std::memset(&socketAddr, 0, sizeof(struct sockaddr_un));
+  memset_s(&socketAddr, sizeof(socketAddr), 0, sizeof(struct sockaddr_un));
   socketAddr.sun_family = AF_UNIX;
   std::strcpy(socketAddr.sun_path, argv[2]);
 
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
   }
 
   struct ucred peerCreds;
-  std::memset(&peerCreds, 0, sizeof(struct ucred));
+  memset_s(&peerCreds, sizeof(peerCreds), 0, sizeof(struct ucred));
   socklen_t peerCredsLen = sizeof(struct ucred);
   rv = ::getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &peerCreds, &peerCredsLen);
 
@@ -100,11 +100,11 @@ int main(int argc, char* argv[]) {
 
   uint64_t inbox;
   struct iovec localIov;
-  std::memset(&localIov, 0, sizeof(struct iovec));
+  memset_s(&localIov, sizeof(localIov), 0, sizeof(struct iovec));
   localIov.iov_base = &inbox;
   localIov.iov_len = sizeof(uint64_t);
   struct iovec remoteIov;
-  std::memset(&remoteIov, 0, sizeof(struct iovec));
+  memset_s(&remoteIov, sizeof(remoteIov), 0, sizeof(struct iovec));
   remoteIov.iov_base = peerOutboxPtr;
   remoteIov.iov_len = sizeof(uint64_t);
 

@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 #include <cstring>
-
+#include <securec.h>
 #include <tensorpipe/common/defs.h>
 
 namespace tensorpipe_npu {
@@ -24,7 +24,7 @@ namespace shm {
 Sockaddr Sockaddr::createAbstractUnixAddr(const std::string& name) {
   struct sockaddr_un sun;
   sun.sun_family = AF_UNIX;
-  std::memset(&sun.sun_path, 0, sizeof(sun.sun_path));
+  memset_s(&sun.sun_path, sizeof(sun.sun_path), 0, sizeof(sun.sun_path));
   // There are three "modes" for binding UNIX domain sockets:
   // - if len(path) == 0: it autobinds to an abstract address
   // - if len(path) > 0 and path[0] == 0: it uses an explicit abstract address
@@ -51,8 +51,9 @@ Sockaddr Sockaddr::createAbstractUnixAddr(const std::string& name) {
 Sockaddr::Sockaddr(const struct sockaddr* addr, socklen_t addrlen) {
   TP_ARG_CHECK(addr != nullptr);
   TP_ARG_CHECK_LE(addrlen, sizeof(addr_));
-  std::memset(&addr_, 0, sizeof(addr_));
-  std::memcpy(&addr_, addr, addrlen);
+  memset_s(&addr_, sizeof(addr_), 0, sizeof(addr_));
+  const auto ret = memcpy_s(&addr_, sizeof(addr_), addr, addrlen);
+  TP_THROW_ASSERT_IF(ret != EOK) << "sockaddr.cc Sockaddr memcpy_s is failed!";
   addrlen_ = addrlen;
 }
 

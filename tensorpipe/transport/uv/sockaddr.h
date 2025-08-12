@@ -13,7 +13,7 @@
 
 #include <cstring>
 #include <string>
-
+#include <securec.h>
 #include <tensorpipe/common/socket.h>
 
 namespace tensorpipe_npu {
@@ -29,8 +29,9 @@ class Sockaddr final : public tensorpipe_npu::Sockaddr {
     TP_ARG_CHECK_LE(addrlen, sizeof(addr_));
     // Ensure the sockaddr_storage is zeroed, because we don't always
     // write to all fields in the `sockaddr_[in|in6]` structures.
-    std::memset(&addr_, 0, sizeof(addr_));
-    std::memcpy(&addr_, addr, addrlen);
+    memset_s(&addr_, sizeof(addr_), 0, sizeof(addr_));
+    const auto ret = memcpy_s(&addr_, sizeof(addr_), addr, addrlen);
+    TP_THROW_ASSERT_IF(ret != EOK) << "sockaddr.h Sockaddr memcpy_s is failed!";
     addrlen_ = addrlen;
   }
 

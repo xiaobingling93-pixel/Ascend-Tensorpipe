@@ -116,7 +116,7 @@ TEST(UvSockaddr, Inet6) {
 
   {
     sockaddr_in6 sa;
-    std::memset(&sa, 0, sizeof(sa));
+    memset_s(&sa, sizeof(sa), 0, sizeof(sa));
     sa.sin6_family = AF_INET6;
     sa.sin6_port = ntohs(42);
     sa.sin6_flowinfo = 0;

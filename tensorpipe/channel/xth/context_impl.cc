@@ -18,6 +18,7 @@
 #include <string>
 #include <thread>
 #include <utility>
+#include <securec.h>
 
 #include <tensorpipe/channel/xth/channel_impl.h>
 #include <tensorpipe/common/defs.h>
@@ -115,8 +116,9 @@ void ContextImpl::handleCopyRequests() {
     // Don't even call memcpy on a length of 0 to avoid issues with the pointer
     // possibly being null.
     if (request.length > 0) {
-      // Perform copy.
-      std::memcpy(request.localPtr, request.remotePtr, request.length);
+        // Perform copy.
+        const auto ret = memcpy_s(request.localPtr, request.length, request.remotePtr, request.length);
+        TP_THROW_ASSERT_IF(ret != EOK) << "context_impl.cc handleCopyRequests memcpy_s is failed!";
     }
 
     request.callback(Error::kSuccess);

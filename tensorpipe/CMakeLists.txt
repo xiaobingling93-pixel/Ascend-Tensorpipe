@@ -180,6 +180,15 @@ if(TP_ENABLE_IBV)
   set(TENSORPIPE_HAS_IBV_TRANSPORT 1)
 endif()
 
+# secure_c
+include_directories(${PROJECT_SOURCE_DIR}/third_party/secure_c/include)
+list(APPEND TP_SRCS
+  ${PROJECT_SOURCE_DIR}/third_party/secure_c/src/memcpy_s.c
+  ${PROJECT_SOURCE_DIR}/third_party/secure_c/src/memset_s.c
+)
+list(APPEND TP_PUBLIC_HDRS
+  ${PROJECT_SOURCE_DIR}/third_party/secure_c/include/securec.h
+)
 
 ## MAC OS specific library deps
 
