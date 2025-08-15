@@ -105,7 +105,6 @@ tensorpipe_npu::Message prepareToWrite(std::shared_ptr<OutgoingMessage> pyMessag
   tensorpipe_npu::Message tpMessage{
       {reinterpret_cast<char*>(pyMessage->metadata.ptr()),
        pyMessage->metadata.length()}};
-  tpMessage.payloads.reserve(pyMessage->payloads.size());
   for (const auto& pyPayload : pyMessage->payloads) {
     tensorpipe_npu::Message::Payload tpPayload{
         .data = pyPayload->buffer.ptr(),
@@ -116,7 +115,6 @@ tensorpipe_npu::Message prepareToWrite(std::shared_ptr<OutgoingMessage> pyMessag
     };
     tpMessage.payloads.push_back(std::move(tpPayload));
   }
-  tpMessage.tensors.reserve(pyMessage->tensors.size());
   for (const auto& pyTensor : pyMessage->tensors) {
     tensorpipe_npu::Message::Tensor tpTensor{
         .buffer = tensorpipe_npu::CpuBuffer{.ptr = pyTensor->buffer.ptr()},
@@ -184,13 +182,11 @@ class IncomingMessage {
 std::shared_ptr<IncomingMessage> prepareToAllocate(
     const tensorpipe_npu::Descriptor& tpDescriptor) {
   std::vector<std::shared_ptr<IncomingPayload>> pyPayloads;
-  pyPayloads.reserve(tpDescriptor.payloads.size());
   for (const auto& tpPayload : tpDescriptor.payloads) {
     pyPayloads.push_back(std::make_shared<IncomingPayload>(
         tpPayload.length, tpPayload.metadata));
   }
   std::vector<std::shared_ptr<IncomingTensor>> pyTensors;
-  pyTensors.reserve(tpDescriptor.tensors.size());
   for (const auto& tpTensor : tpDescriptor.tensors) {
     pyTensors.push_back(
         std::make_shared<IncomingTensor>(tpTensor.length, tpTensor.metadata));
@@ -203,7 +199,6 @@ std::shared_ptr<IncomingMessage> prepareToAllocate(
 tensorpipe_npu::Allocation prepareToRead(
     std::shared_ptr<IncomingMessage> pyMessage) {
   tensorpipe_npu::Allocation tpAllocation;
-  tpAllocation.payloads.reserve(pyMessage->payloads.size());
   for (const auto& pyPayload : pyMessage->payloads) {
     TP_THROW_ASSERT_IF(!pyPayload->buffer.has_value()) << "No buffer";
     tensorpipe_npu::Allocation::Payload tpPayload{
@@ -211,7 +206,6 @@ tensorpipe_npu::Allocation prepareToRead(
     };
     tpAllocation.payloads.push_back(std::move(tpPayload));
   }
-  tpAllocation.tensors.reserve(pyMessage->tensors.size());
   for (const auto& pyTensor : pyMessage->tensors) {
     TP_THROW_ASSERT_IF(!pyTensor->buffer.has_value()) << "No buffer";
     tensorpipe_npu::Allocation::Tensor tpTensor{

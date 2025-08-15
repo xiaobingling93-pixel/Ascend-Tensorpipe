@@ -70,7 +70,6 @@ ContextImpl::ContextImpl(
   TP_THROW_ASSERT_IF(contexts_.size() != listeners_.size());
   numLanes_ = contexts_.size();
 
-  addresses_.reserve(numLanes_);
   for (const auto& listener : listeners_) {
     addresses_.emplace_back(listener->addr());
   }
