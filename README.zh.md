@@ -1,7 +1,7 @@
 # Ascend Extension for TensorPipe
 
 #### 介绍
-开源仓Tensorpipe基于华为Ascend pytorch/torch_npu的适配。
+此项目为原始开源仓Tensorpipe基于华为Ascend pytorch/torch_npu的适配。
 
 #### 安装教程
 在linux shell中指定位置运行：
