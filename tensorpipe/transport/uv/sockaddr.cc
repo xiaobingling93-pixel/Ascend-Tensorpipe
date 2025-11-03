@@ -60,10 +60,15 @@ Sockaddr Sockaddr::createInetSockAddr(const std::string& str) {
 
   // Parse port number if specified.
   if (!portStr.empty()) {
-    port = std::stoi(portStr);
-    if (port < 0 || port > std::numeric_limits<uint16_t>::max()) {
-      TP_THROW_EINVAL() << str;
-    }
+      char* endPtr = nullptr;
+      errno = 0;
+      long portLong = std::strtol(portStr.c_str(), &endPtr, 10);
+      if (endPtr == portStr.c_str() || *endPtr != '\0' ||
+          portLong < 0 || portLong > std::numeric_limits<uint16_t>::max() ||
+          errno == ERANGE) {
+          TP_THROW_EINVAL() << str;
+      }
+      port = static_cast<uint16_t>(portLong);
   }
 
   // Try to convert an IPv4 address.
