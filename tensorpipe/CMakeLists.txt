@@ -221,6 +221,8 @@ if(BUILD_SHARED_LIBS)
   set_target_properties(tensorpipe PROPERTIES POSITION_INDEPENDENT_CODE 1)
 endif()
 
+target_link_options(tensorpipe PRIVATE "-Wl,-Bsymbolic-functions")
+
 # Add all the link libraries and include directories to the tensorpipe target and keeping the link PUBLIC
 target_link_libraries(tensorpipe PRIVATE ${TP_LINK_LIBRARIES})
 target_include_directories(tensorpipe PUBLIC ${TP_INCLUDE_DIRS})
