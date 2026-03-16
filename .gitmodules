@@ -3,7 +3,7 @@
 	url = https://gitee.com/mirrors/pybind11.git
 [submodule "third_party/libuv"]
 	path = third_party/libuv
-	url = https://gitee.com/mirrors/libuv.git
+	url = https://gitcode.com/gh_mirrors/li/libuv.git
 [submodule "third_party/googletest"]
 	path = third_party/googletest
 	url = https://gitee.com/mirrors/googletest.git
